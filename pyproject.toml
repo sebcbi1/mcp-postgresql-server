@@ -1,0 +1,76 @@
+[project]
+name = "mcp-postgresql-server"
+version = "1.0.0"
+description = "A secure, read-only PostgreSQL Model Context Protocol (MCP) server for AI assistant integration with automatic database discovery and connection management"
+readme = "README.md"
+license = "MIT"
+authors = [
+    {name = "sebcbi1"}
+]
+maintainers = [
+    {name = "sebcbi1"}
+]
+keywords = [
+    "mcp",
+    "postgresql",
+    "database",
+    "ai-assistant",
+    "claude",
+    "model-context-protocol",
+    "sql",
+    "postgres",
+    "database-tools"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Database",
+    "Topic :: Database :: Database Engines/Servers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Environment :: Console",
+    "Operating System :: OS Independent",
+    "Typing :: Typed"
+]
+requires-python = ">=3.13"
+dependencies = [
+    "mcp>=1.13.1",
+    "psycopg2-binary>=2.9.10",
+    "pydantic>=2.11.7",
+    "python-dotenv>=1.1.1",
+    "pyyaml>=6.0.2",
+    "sentry-sdk>=2.35.2",
+    "toml>=0.10.2",
+    "typing-extensions>=4.15.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/sebcbi1/mcp-postgresql-server"
+Repository = "https://github.com/sebcbi1/mcp-postgresql-server"
+Documentation = "https://github.com/sebcbi1/mcp-postgresql-server/blob/main/README.md"
+Issues = "https://github.com/sebcbi1/mcp-postgresql-server/issues"
+
+[project.scripts]
+mcp-postgresql-server = "mcp_postgresql_server:cli_main"
+execute-query = "execute_query:main"
+
+[tool.setuptools]
+py-modules = [
+    "mcp_postgresql_server",
+    "execute_query", 
+    "db_connection",
+    "db_discovery",
+    "project_utils"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "mypy>=1.5.0",
+    "coverage>=7.0.0"
+]
