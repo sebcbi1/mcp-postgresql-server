@@ -21,20 +21,76 @@ import sys
 import argparse
 import time
 from pathlib import Path
+import readline
+import os
+import hashlib
 
-# Import our shared database library
+# Import our shared libraries
 try:
     from db_connection import DatabaseManager
+    from project_utils import get_project_path, get_project_path_as_path
 except ImportError:
-    print("❌ Failed to import database connection library. Make sure db_connection.py is in the same directory.")
+    print("❌ Failed to import shared libraries. Make sure db_connection.py and project_utils.py are in the same directory.")
     sys.exit(1)
-
 
 class QueryExecutor:
     """Command-line query execution interface"""
     
     def __init__(self):
         self.db_manager = DatabaseManager()
+        self.history_file = self._get_project_history_file()
+        self.query_history = []
+        self._setup_readline()
+    
+    def _get_project_history_file(self):
+        """
+        Generate a project-specific history file path in the project directory.
+        """
+        try:
+            project_path = get_project_path()
+            # Create history file in project directory
+            history_file = os.path.join(project_path, ".mcp_postgresql_history")
+            return history_file
+            
+        except Exception as e:
+            print(f"⚠️  Could not create project-specific history file: {e}")
+            # Fallback to global history file
+            return os.path.expanduser("~/.mcp_postgres_history")
+    
+    def _setup_readline(self):
+        """Configure readline for command history and completion"""
+        try:
+            # Load history from file if it exists
+            if os.path.exists(self.history_file):
+                readline.read_history_file(self.history_file)
+                
+            # Set history size to 50 queries max
+            readline.set_history_length(50)
+            
+            # Enable tab completion (optional)
+            readline.parse_and_bind("tab: complete")
+            
+        except Exception as e:
+            # readline might not be available on all systems
+            print(f"⚠️  History feature may not work properly: {e}")
+    
+    def _save_history(self):
+        """Save command history to file"""
+        try:
+            readline.write_history_file(self.history_file)
+        except Exception as e:
+            print(f"⚠️  Could not save history: {e}")
+    
+    def _add_to_history(self, query: str):
+        """Add query to history (avoiding duplicates of last command, max 50 queries)"""
+        query = query.strip()
+        if query and (not self.query_history or self.query_history[-1] != query):
+            # Maintain max 50 queries in our internal history
+            if len(self.query_history) >= 50:
+                self.query_history.pop(0)  # Remove oldest query
+            
+            self.query_history.append(query)
+            readline.add_history(query)
     
     def execute_query_with_output(self, sql_query: str, params=None):
         """
@@ -73,40 +129,48 @@ class QueryExecutor:
     
     def start_interactive_mode(self):
         """
-        Starts interactive mode for executing queries
+        Starts interactive mode for executing queries with history navigation
         """
         print('🎯 Interactive SQL Query Mode')
         print('Enter SQL queries (type "exit" or "quit" to leave):')
+        print('Use ↑/↓ arrow keys to navigate query history')
         print('Examples:')
         print('  SELECT * FROM users LIMIT 5;')
         print('  SELECT COUNT(*) FROM users;')
         print('')
         
-        while True:
-            try:
-                user_input = input('SQL> ').strip()
-                
-                if user_input.lower() in ['exit', 'quit']:
-                    print('👋 Goodbye!')
-                    break
-                
-                if user_input.lower() == 'help':
-                    print('Available commands:')
-                    print('  help  - Show this help message')
-                    print('  exit  - Exit interactive mode')
-                    print('  quit  - Exit interactive mode')
-                    print('')
-                    continue
-                
-                if user_input:
-                    self.execute_query_with_output(user_input)
+        try:
+            while True:
+                try:
+                    user_input = input('SQL> ').strip()
                     
-            except KeyboardInterrupt:
-                print('\n👋 Shutting down gracefully...')
-                break
-            except EOFError:
-                print('\n👋 Goodbye!')
-                break
+                    if user_input.lower() in ['exit', 'quit']:
+                        print('👋 Goodbye!')
+                        break
+                    
+                    if user_input.lower() == 'help':
+                        print('Available commands:')
+                        print('  help     - Show this help message')
+                        print('  exit     - Exit interactive mode')
+                        print('  quit     - Exit interactive mode')
+                        print('  ↑/↓      - Navigate query history')
+                        print('')
+                        continue
+                    
+                    if user_input:
+                        # Add to history before execution
+                        self._add_to_history(user_input)
+                        self.execute_query_with_output(user_input)
+                        
+                except KeyboardInterrupt:
+                    print('\n👋 Shutting down gracefully...')
+                    break
+                except EOFError:
+                    print('\n👋 Goodbye!')
+                    break
+        finally:
+            # Save history when exiting
+            self._save_history()
     
     def execute_from_file(self, file_path: str):
         """
@@ -131,7 +195,8 @@ class QueryExecutor:
             print(f'❌ Failed to read file: {error}')
     
     def close(self):
-        """Close database connections"""
+        """Close database connections and save history"""
+        self._save_history()
         self.db_manager.close()
 
 
@@ -146,6 +211,12 @@ def show_help():
     print('  python execute-query.py "SELECT * FROM users"    # Direct query')
     print('  python execute-query.py --file query.sql         # Execute from file')
     print('  python execute-query.py --help                   # Show this help')
+    print('')
+    print('Interactive Mode Features:')
+    print('  • Use ↑/↓ arrow keys to navigate query history')
+    print('  • Query history is persistent across sessions')
+    print('  • Tab completion support')
+    print('  • Type "help" for interactive commands')
     print('')
     print('Configuration:')
     print('  Set MCP_DATABASE environment variable:')

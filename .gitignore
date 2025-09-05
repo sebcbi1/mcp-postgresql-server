@@ -13,3 +13,5 @@ wheels/
 .env
 .mcp.json
 test/
+.mcp_postgresql_history
+.mcp_postgresql.log
