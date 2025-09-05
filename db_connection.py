@@ -35,6 +35,16 @@ except ImportError:
     print("❌ Failed to import project utilities. Make sure project_utils.py is in the same directory.")
     raise ImportError("project_utils is required")
 
+# Import logging configuration
+try:
+    from logging_config import get_logger
+    logger = get_logger("db-connection")
+except ImportError:
+    # Fallback to basic logging if logging_config is not available
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger("db-connection")
+
 def load_project_dotenv(override: bool = False):
     """
     Load .env file from the project directory.
@@ -119,10 +129,12 @@ class DatabasePool:
     def initialize(self):
         """Initialize database connection pool"""
         if self._pool:
+            logger.debug("Database pool already initialized, skipping")
             return
             
         try:
             db_config = self._config.load_config(self.database_url)
+            logger.info(f"Initializing database connection pool to {db_config['host']}:{db_config['port']}/{db_config['database']}")
             
             self._pool = psycopg2.pool.ThreadedConnectionPool(
                 minconn=db_config['minconn'],
@@ -135,7 +147,10 @@ class DatabasePool:
                 cursor_factory=RealDictCursor
             )
             
+            logger.info(f"Database pool initialized successfully with {db_config['minconn']}-{db_config['maxconn']} connections")
+            
         except Exception as error:
+            logger.error(f"Failed to initialize database pool: {error}", exc_info=True)
             raise Exception(f'Failed to initialize database pool: {error}')
     
     def get_connection(self):
@@ -232,9 +247,22 @@ class DatabaseExecutor:
         if params is None:
             params = []
         
+        # Log query execution attempt (truncate for readability)
+        query_preview = sql[:100].replace('\n', ' ').strip()
+        if len(sql) > 100:
+            query_preview += "..."
+        logger.debug(f"Executing query: {query_preview}")
+        if params:
+            logger.debug(f"Query parameters: {params}")
+        
         # Validate query is read-only before execution (if read_only mode is enabled)
         if self.read_only:
-            self.validate_read_only_query(sql)
+            try:
+                self.validate_read_only_query(sql)
+                logger.debug("Query validated as read-only")
+            except Exception as e:
+                logger.warning(f"Query validation failed: {e}")
+                raise
         
         connection = None
         cursor = None
@@ -245,20 +273,25 @@ class DatabaseExecutor:
             cursor = connection.cursor()
             
             # Execute query
+            start_time = time.time()
             cursor.execute(sql, params)
+            execution_time = time.time() - start_time
             
             # Fetch results if it's a SELECT query
             if cursor.description:
                 # Convert RealDictRow to regular dict for consistent formatting
                 rows = [dict(row) for row in cursor.fetchall()]
+                logger.info(f"Query executed successfully in {execution_time:.3f}s, returned {len(rows)} rows")
                 return rows
             else:
                 # This should not happen with read-only queries, but handle gracefully
+                logger.info(f"Query executed successfully in {execution_time:.3f}s, no results returned")
                 return [{'message': 'Query executed successfully, no results returned'}]
                 
         except Exception as error:
             if connection:
                 connection.rollback()
+            logger.error(f"Database query failed: {str(error)}", exc_info=True)
             raise Exception(f"Database query failed: {str(error)}")
         finally:
             if cursor:
@@ -326,8 +359,11 @@ class DatabaseManager:
     def initialize(self):
         """Initialize the database manager"""
         if not self._initialized:
+            read_only_mode = "enabled" if self.read_only else "disabled"
+            logger.info(f"Initializing DatabaseManager with read-only mode {read_only_mode}")
             self.pool.initialize()
             self._initialized = True
+            logger.info("DatabaseManager initialized successfully")
     
     def test_connection(self) -> bool:
         """Tests the database connection without executing a query."""

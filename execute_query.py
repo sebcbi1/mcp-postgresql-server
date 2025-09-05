@@ -29,8 +29,13 @@ import hashlib
 try:
     from db_connection import DatabaseManager
     from project_utils import get_project_path, get_project_path_as_path
-except ImportError:
-    print("❌ Failed to import shared libraries. Make sure db_connection.py and project_utils.py are in the same directory.")
+    from logging_config import get_logger
+    
+    # Setup logging
+    logger = get_logger("execute-query")
+except ImportError as e:
+    print(f"❌ Failed to import shared libraries: {e}")
+    print("Make sure db_connection.py, project_utils.py, and logging_config.py are in the same directory.")
     sys.exit(1)
 
 class QueryExecutor:
@@ -116,13 +121,20 @@ class QueryExecutor:
         start_time = time.time()
         
         try:
+            logger.debug(f"Executing query: {trimmed_query[:100]}...")
+            if params:
+                logger.debug(f"Query parameters: {params}")
+            
             results = self.db_manager.execute_query(trimmed_query, params)
             execution_time = int((time.time() - start_time) * 1000)  # Convert to milliseconds
+            
+            logger.info(f"Query executed successfully in {execution_time}ms, returned {len(results) if results else 0} rows")
             
             print('\n' + self.db_manager.format_results_as_table(results))
             print(f'\n⏱️  Query executed in {execution_time}ms\n')
             
         except Exception as error:
+            logger.error(f"Query execution failed: {str(error)}", exc_info=True)
             print('❌ Query execution failed:')
             print(f'   Error: {str(error)}')
             print('')
@@ -180,18 +192,22 @@ class QueryExecutor:
         """
         try:
             file_path = Path(file_path).resolve()
+            logger.info(f"Attempting to execute SQL from file: {file_path}")
             
             if not file_path.exists():
+                logger.error(f"SQL file not found: {file_path}")
                 print(f'❌ File not found: {file_path}')
                 return
             
             with open(file_path, 'r', encoding='utf-8') as file:
                 sql_content = file.read()
             
+            logger.info(f"Successfully read SQL file: {file_path}, content length: {len(sql_content)} chars")
             print(f'📁 Reading SQL from: {file_path}')
             self.execute_query_with_output(sql_content)
             
         except Exception as error:
+            logger.error(f"Failed to read SQL file: {file_path}, error: {error}", exc_info=True)
             print(f'❌ Failed to read file: {error}')
     
     def close(self):
@@ -268,8 +284,12 @@ def main():
         
         # Initialize executor and database connection
         print('🔌 Initializing database connection...')
+        logger.info("Initializing database connection")
+        
         executor = QueryExecutor()
         executor.db_manager.initialize()
+        
+        logger.info("Database connection established successfully")
         print('✅ Database connection established!\n')
         
         # Execute based on arguments

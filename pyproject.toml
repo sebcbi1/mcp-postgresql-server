@@ -1,6 +1,6 @@
 [project]
 name = "mcp-postgresql-server"
-version = "1.0.0"
+version = "1.2.0"
 description = "A secure, read-only PostgreSQL Model Context Protocol (MCP) server for AI assistant integration with automatic database discovery and connection management"
 readme = "README.md"
 license = "MIT"
@@ -41,7 +41,6 @@ dependencies = [
     "pydantic>=2.11.7",
     "python-dotenv>=1.1.1",
     "pyyaml>=6.0.2",
-    "sentry-sdk>=2.35.2",
     "toml>=0.10.2",
     "typing-extensions>=4.15.0",
 ]
@@ -62,7 +61,8 @@ py-modules = [
     "execute_query", 
     "db_connection",
     "db_discovery",
-    "project_utils"
+    "project_utils",
+    "logging_config"
 ]
 
 [project.optional-dependencies]

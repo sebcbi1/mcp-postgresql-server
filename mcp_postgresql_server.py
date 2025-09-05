@@ -15,12 +15,12 @@ Usage:
 Environment:
     MCP_DATABASE - PostgreSQL connection URI
     MCP_READ_ONLY - Set to "false" to disable read-only mode (default: "true")
-    SENTRY_DSN - Optional Sentry DSN for error tracking
+    MCP_POSTGRESQL_LOG_FILE - Log file path (optional)
+    MCP_POSTGRESQL_LOG_LEVEL - Log level (default: "error")
 
 @author sebcbi1
 """
 
-import sentry_sdk
 import asyncio
 import sys
 import json
@@ -46,19 +46,15 @@ except ImportError:
     print("❌ Failed to import a required library. Make sure db_connection.py and db_discovery.py are present.")
     sys.exit(1)
 
-# Initialize Sentry if DSN is provided (after .env is loaded)
-sentry_dsn = os.getenv('SENTRY_DSN')
-if sentry_dsn:
-    sentry_sdk.init(
-        dsn=sentry_dsn,
-        # Add data like request headers and IP for users,
-        # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
-        send_default_pii=True,
-    )
 
-# Setup logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("mcp-postgresql-server")
+# Setup logging using our configuration module
+try:
+    from logging_config import get_logger
+    logger = get_logger("mcp-postgresql-server")
+except ImportError:
+    # Fallback to basic logging if logging_config is not available
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger("mcp-postgresql-server")
 
 # Set working directory to CLIENT_CWD
 project_path = get_project_path()

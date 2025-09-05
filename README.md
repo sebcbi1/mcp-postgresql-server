@@ -51,6 +51,8 @@ Or create a `.env` file:
 ```env
 MCP_DATABASE=postgres://username:password@hostname:port/database
 MCP_READ_ONLY=true
+MCP_POSTGRESQL_LOG_FILE=./mcp-postgresql.log
+MCP_POSTGRESQL_LOG_LEVEL=info
 ```
 
 ## Usage Examples
@@ -144,7 +146,8 @@ using MCP_DATABASE variable.
 |----------|-------------|---------|
 | `MCP_DATABASE` | PostgreSQL connection URI | Required |
 | `MCP_READ_ONLY` | Enable read-only mode | `true` |
-| `SENTRY_DSN` | Error tracking (optional) | None |
+| `MCP_POSTGRESQL_LOG_FILE` | Log file path (optional) | None |
+| `MCP_POSTGRESQL_LOG_LEVEL` | Log level (debug, info, warning, error, critical) | `error` |
 | `CLIENT_CWD` | path of the client working directory | `.` |
 
 ## Security
