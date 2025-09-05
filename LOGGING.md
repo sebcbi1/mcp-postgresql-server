@@ -9,7 +9,7 @@ This project includes a comprehensive logging system that can be configured via 
 - **Default**: Empty (no file logging)
 - **Path Resolution**: 
   - Absolute paths: Used as-is (e.g., `/var/log/mcp-postgresql.log`)
-  - Relative paths: Resolved relative to project directory from CLIENT_CWD (e.g., `logs/app.log`)
+  - Relative paths: Resolved relative to project directory from MCP_POSTGRESQL_CWD (e.g., `logs/app.log`)
 - **Behavior**: 
   - If not set or empty: No file logging occurs
   - If set: All log messages are written to the specified file
@@ -122,7 +122,7 @@ MCP_POSTGRESQL_LOG_FILE=/var/log/mcp/postgresql.log
 MCP_POSTGRESQL_LOG_FILE=logs/postgresql.log
 ```
 
-**Note**: Relative paths are resolved relative to the project directory (CLIENT_CWD environment variable), not the current working directory.
+**Note**: Relative paths are resolved relative to the project directory (MCP_POSTGRESQL_CWD environment variable), not the current working directory.
 
 ## Error Handling
 

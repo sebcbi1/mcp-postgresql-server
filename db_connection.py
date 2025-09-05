@@ -84,11 +84,11 @@ class DatabaseConfig:
             return self._config
 
         if database_url is None:
-            database_url = os.getenv('MCP_DATABASE')
+            database_url = os.getenv('MCP_POSTGRESQL_DATABASE')
         
         if not database_url:
             raise ValueError(
-                'No database URI provided and MCP_DATABASE environment variable is not set.'
+                'No database URI provided and MCP_POSTGRESQL_DATABASE environment variable is not set.'
             )
         
         # Parse PostgreSQL URI
@@ -349,7 +349,8 @@ class DatabaseManager:
     def __init__(self, database_url: Optional[str] = None, read_only: bool = None):
         if read_only is None:
             # Check environment variable, default to True (read-only mode)
-            read_only = os.getenv('MCP_READ_ONLY', 'true').lower() != 'false'
+            read_only_env = os.getenv('MCP_POSTGRESQL_READ_ONLY', 'true')
+            read_only = read_only_env.lower() != 'false'
         
         self.pool = DatabasePool(database_url)
         self.executor = DatabaseExecutor(self.pool, read_only=read_only)

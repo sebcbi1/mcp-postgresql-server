@@ -1,6 +1,6 @@
 [project]
 name = "mcp-postgresql-server"
-version = "1.2.0"
+version = "1.4.0"
 description = "A secure, read-only PostgreSQL Model Context Protocol (MCP) server for AI assistant integration with automatic database discovery and connection management"
 readme = "README.md"
 license = "MIT"
@@ -22,17 +22,14 @@ keywords = [
     "database-tools"
 ]
 classifiers = [
-    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.13",
     "Topic :: Database",
     "Topic :: Database :: Database Engines/Servers",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Environment :: Console",
     "Operating System :: OS Independent",
-    "Typing :: Typed"
 ]
 requires-python = ">=3.13"
 dependencies = [

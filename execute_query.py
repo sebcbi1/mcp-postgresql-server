@@ -4,7 +4,7 @@
 SQL Query Execution Script 🚀
 
 This script allows you to execute SQL queries with direct database connection.
-It reads configuration from environment variable MCP_DATABASE or .env file.
+It reads configuration from environment variable MCP_POSTGRESQL_DATABASE or .env file.
 
 Usage:
   python execute-query.py                           # Interactive mode
@@ -12,7 +12,7 @@ Usage:
   python execute-query.py --file query.sql         # Execute from file
 
 Environment variable:
-  MCP_DATABASE=postgres://user:password@host:port/database
+  MCP_POSTGRESQL_DATABASE=postgres://user:password@host:port/database
 
 @author sebcbi1
 """
@@ -235,11 +235,11 @@ def show_help():
     print('  • Type "help" for interactive commands')
     print('')
     print('Configuration:')
-    print('  Set MCP_DATABASE environment variable:')
-    print('    export MCP_DATABASE="postgres://user:password@host:port/database"')
+    print('  Set MCP_POSTGRESQL_DATABASE environment variable:')
+    print('    export MCP_POSTGRESQL_DATABASE="postgres://user:password@host:port/database"')
     print('')
     print('  Or create a .env file with:')
-    print('    MCP_DATABASE=postgres://user:password@host:port/database')
+    print('    MCP_POSTGRESQL_DATABASE=postgres://user:password@host:port/database')
     print('')
     print('Examples:')
     print('  python execute-query.py "SELECT COUNT(*) FROM properties"')

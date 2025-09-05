@@ -266,11 +266,11 @@ def setup_database_config(uri: str):
         f.seek(0)
         lines = f.readlines()
         
-        # Remove existing MCP_DATABASE line
-        lines = [line for line in lines if not line.strip().startswith('MCP_DATABASE=')]
+        # Remove existing MCP_POSTGRESQL_DATABASE and MCP_DATABASE lines
+        lines = [line for line in lines if not (line.strip().startswith('MCP_POSTGRESQL_DATABASE=') or line.strip().startswith('MCP_DATABASE='))]
         
-        # Add the new line
-        lines.append(f'MCP_DATABASE={uri}\n')
+        # Add the new line with preferred variable name
+        lines.append(f'MCP_POSTGRESQL_DATABASE={uri}\n')
         
         f.seek(0)
         f.truncate()

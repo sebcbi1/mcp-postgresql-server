@@ -1,0 +1,6 @@
+2025-09-05 14:15:24 - execute-query - INFO - Initializing database connection
+2025-09-05 14:15:24 - execute-query - INFO - Database connection established successfully
+2025-09-05 14:15:27 - execute-query - INFO - Query executed successfully in 46ms, returned 5 rows
+2025-09-05 14:15:37 - mcp-postgresql-server - INFO - Starting MCP PostgreSQL Server...
+2025-09-05 14:15:37 - mcp-postgresql-server - INFO - /Users/sebcbi1/work/perso/mcp-postgres
+2025-09-05 14:15:47 - mcp-postgresql-server - INFO - Server shutdown requested

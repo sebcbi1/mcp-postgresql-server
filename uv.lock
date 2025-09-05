@@ -274,7 +274,7 @@ wheels = [
 
 [[package]]
 name = "mcp-postgresql-server"
-version = "1.2.0"
+version = "1.4.0"
 source = { virtual = "." }
 dependencies = [
     { name = "mcp" },

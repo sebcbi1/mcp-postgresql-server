@@ -13,8 +13,8 @@ Usage:
     python3 mcp-postgresql-server.py
 
 Environment:
-    MCP_DATABASE - PostgreSQL connection URI
-    MCP_READ_ONLY - Set to "false" to disable read-only mode (default: "true")
+    MCP_POSTGRESQL_DATABASE - PostgreSQL connection URI
+    MCP_POSTGRESQL_READ_ONLY - Set to "false" to disable read-only mode (default: "true")
     MCP_POSTGRESQL_LOG_FILE - Log file path (optional)
     MCP_POSTGRESQL_LOG_LEVEL - Log level (default: "error")
 
@@ -56,7 +56,7 @@ except ImportError:
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger("mcp-postgresql-server")
 
-# Set working directory to CLIENT_CWD
+# Set working directory to MCP_POSTGRESQL_CWD
 project_path = get_project_path()
 os.chdir(project_path)
 
@@ -196,8 +196,8 @@ class PostgreSQLMCPServer:
         
     async def initialize_database(self):
         """Initialize database connection using the shared library"""
-        if not os.getenv('MCP_DATABASE'):
-            raise Exception("MCP_DATABASE environment variable not set.")
+        if not os.getenv('MCP_POSTGRESQL_DATABASE'):
+            raise Exception("MCP_POSTGRESQL_DATABASE environment variable not set.")
         try:
             if not self.db_initialized:
                 self.db_manager.initialize()
@@ -306,7 +306,7 @@ async def list_tools() -> List[Tool]:
     return [
         Tool(
             name="execute_sql_query",
-            description="Execute a read-only SQL query against the PostgreSQL database. Only SELECT, WITH, SHOW, EXPLAIN, and DESCRIBE operations are allowed. Write operations (INSERT, UPDATE, DELETE, CREATE, ALTER, DROP) are blocked. Set MCP_READ_ONLY=false to disable read-only mode.",
+            description="Execute a read-only SQL query against the PostgreSQL database. Only SELECT, WITH, SHOW, EXPLAIN, and DESCRIBE operations are allowed. Write operations (INSERT, UPDATE, DELETE, CREATE, ALTER, DROP) are blocked. Set MCP_POSTGRESQL_READ_ONLY=false to disable read-only mode.",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -476,7 +476,7 @@ async def call_tool(name: str, arguments: dict) -> List[TextContent]:
             result = {
                 "success": True,
                 "working_directory": get_project_path(),
-                "source": "CLIENT_CWD environment variable" if os.getenv('CLIENT_CWD') else "server cwd fallback"
+                "source": "MCP_POSTGRESQL_CWD environment variable" if os.getenv('MCP_POSTGRESQL_CWD') else "server cwd fallback"
             }
         
         elif name == "select_and_configure_database":

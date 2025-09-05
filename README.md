@@ -43,14 +43,14 @@ uvx --from mcp-postgresql-server execute-query "SELECT version()"
 Set your database connection:
 
 ```bash
-export MCP_DATABASE="postgres://username:password@hostname:port/database"
+export MCP_POSTGRESQL_DATABASE="postgres://username:password@hostname:port/database"
 ```
 
 Or create a `.env` file:
 
 ```env
-MCP_DATABASE=postgres://username:password@hostname:port/database
-MCP_READ_ONLY=true
+MCP_POSTGRESQL_DATABASE=postgres://username:password@hostname:port/database
+MCP_POSTGRESQL_READ_ONLY=true
 MCP_POSTGRESQL_LOG_FILE=./mcp-postgresql.log
 MCP_POSTGRESQL_LOG_LEVEL=info
 ```
@@ -96,7 +96,7 @@ Add to `~/.claude.json`:
       "command": "uvx",
       "args": ["mcp-postgresql-server"],
       "env": {
-        "CLIENT_CWD": "${PWD}"
+        "MCP_POSTGRESQL_CWD": "${PWD}"
       }
     }
   }
@@ -120,7 +120,7 @@ Create/update `mcp.json` in your project root:
       "command": "uvx",
       "args": ["mcp-postgresql-server"],
       "env": {
-        "CLIENT_CWD": "."
+        "MCP_POSTGRESQL_CWD": "."
       }
     }
   }
@@ -138,17 +138,17 @@ The server automatically discovers database configurations from:
 
 When multiple configurations are found, it presents an interactive selection menu.
 Saved configurations are stored in a `.env` file for future use
-using MCP_DATABASE variable.
+using MCP_POSTGRESQL_DATABASE variable.
 
 ## Environment Variables
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `MCP_DATABASE` | PostgreSQL connection URI | Required |
-| `MCP_READ_ONLY` | Enable read-only mode | `true` |
+| `MCP_POSTGRESQL_DATABASE` | PostgreSQL connection URI | Required |
+| `MCP_POSTGRESQL_READ_ONLY` | Enable read-only mode | `true` |
 | `MCP_POSTGRESQL_LOG_FILE` | Log file path (optional) | None |
 | `MCP_POSTGRESQL_LOG_LEVEL` | Log level (debug, info, warning, error, critical) | `error` |
-| `CLIENT_CWD` | path of the client working directory | `.` |
+| `MCP_POSTGRESQL_CWD` | Path of the project working directory | `.` |
 
 ## Security
 
@@ -159,6 +159,6 @@ using MCP_DATABASE variable.
 
 ## Common Issues
 
-**Connection errors**: Verify `MCP_DATABASE` format: `postgres://user:password@host:port/database`
+**Connection errors**: Verify `MCP_POSTGRESQL_DATABASE` format: `postgres://user:password@host:port/database`
 
 **Permission issues**: Ensure database user has appropriate SELECT permissions
