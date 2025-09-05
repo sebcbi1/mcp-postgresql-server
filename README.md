@@ -1,19 +1,24 @@
 # PostgreSQL MCP Server
 
-A secure, read-only PostgreSQL Model Context Protocol (MCP) server for AI assistant integration with automatic database discovery and connection management.
+A secure, read-only PostgreSQL Model Context Protocol (MCP) server for AI
+assistant integration with automatic database discovery and connection management.
 
 ## What It Does
 
 This tool provides two main components:
 
-- **Query Executor** (`execute_query.py`): Interactive PostgreSQL query execution with support for direct queries, file input, and interactive mode
-- **MCP Server** (`mcp_postgresql_server.py`): AI assistant integration that allows natural language database interactions through Claude Desktop and other MCP clients
+- **Query Executor** (`execute_query.py`): Interactive PostgreSQL query
+execution with support for direct queries, file input, and interactive mode
+- **MCP Server** (`mcp_postgresql_server.py`): AI assistant integration that allows
+natural language database interactions through Claude and other MCP clients
 
 ## Key Features
 
-- **Automatic Database Discovery**: Scans project files for database configurations and presents options for selection
+- **Automatic Database Discovery**: Scans project files for database
+configurations and presents options for selection
 - **Read-Only Safety**: Blocks write operations by default (configurable)
-- **Interactive Configuration**: Guides users through database setup with automatic `.env` file management
+- **Interactive Configuration**: Guides users through database setup
+with automatic `.env` file management
 - **Connection Pooling**: Efficient PostgreSQL connection management
 - **AI Integration**: Works seamlessly with Claude Desktop and Cursor IDE
 
@@ -42,6 +47,7 @@ export MCP_DATABASE="postgres://username:password@hostname:port/database"
 ```
 
 Or create a `.env` file:
+
 ```env
 MCP_DATABASE=postgres://username:password@hostname:port/database
 MCP_READ_ONLY=true
@@ -52,6 +58,7 @@ MCP_READ_ONLY=true
 ### Query Executor
 
 **Using uvx (recommended):**
+
 ```bash
 # Interactive mode
 uvx --from mcp-postgresql-server execute-query
@@ -64,6 +71,7 @@ uvx --from mcp-postgresql-server execute-query --file queries.sql
 ```
 
 **Using Python directly:**
+
 ```bash
 # Interactive mode
 python3 execute_query.py
@@ -93,34 +101,20 @@ Add to `~/.claude.json`:
 }
 ```
 
-**Alternative: Setup from GitHub directly:**
-```json
-{
-  "mcpServers": {
-    "mcp-postgres": {
-      "command": "uvx",
-      "args": ["--from", "https://github.com/sebcbi1/mcp-postgresql-server.git", "mcp-postgresql-server"],
-      "env": {
-        "CLIENT_CWD": "${PWD}"
-      }
-    }
-  }
-}
-```
-
 Then ask Claude:
+
 - "Show me all tables in the database"
-- "Execute SELECT COUNT(*) FROM properties"
+- "Execute SELECT COUNT(*) FROM users"
 - "Help me write a query to find recent orders"
 
 ### Cursor IDE Integration
 
-Create `mcp.json` in your project root:
+Create/update `mcp.json` in your project root:
 
 ```json
 {
   "mcpServers": {
-    "mcp-postgres": {
+    "mcp-postgresql-server": {
       "command": "uvx",
       "args": ["mcp-postgresql-server"],
       "env": {
@@ -131,33 +125,18 @@ Create `mcp.json` in your project root:
 }
 ```
 
-**Alternative: Setup from GitHub directly:**
-```json
-{
-  "mcpServers": {
-    "mcp-postgres": {
-      "command": "uvx",
-      "args": ["--from", "https://github.com/sebcbi1/mcp-postgresql-server.git", "mcp-postgresql-server"],
-      "env": {
-        "CLIENT_CWD": "."
-      }
-    }
-  }
-}
-```
-
-
-
 ## Configuration Discovery
 
 The server automatically discovers database configurations from:
+
 - `.env` files
 - `.conf` and `.ini` files
 - `.json` and `.yaml` files
 - Individual parameter files (db.host, db.user, etc.)
 
 When multiple configurations are found, it presents an interactive selection menu.
-Saved configurations are stored in a `.env` file for future use using MCP_DATABASE variable.
+Saved configurations are stored in a `.env` file for future use
+using MCP_DATABASE variable.
 
 ## Environment Variables
 
@@ -166,8 +145,7 @@ Saved configurations are stored in a `.env` file for future use using MCP_DATABA
 | `MCP_DATABASE` | PostgreSQL connection URI | Required |
 | `MCP_READ_ONLY` | Enable read-only mode | `true` |
 | `SENTRY_DSN` | Error tracking (optional) | None |
-| CLIENT_CWD | path of the client working directory | `.` |
-
+| `CLIENT_CWD` | path of the client working directory | `.` |
 
 ## Security
 
@@ -181,4 +159,3 @@ Saved configurations are stored in a `.env` file for future use using MCP_DATABA
 **Connection errors**: Verify `MCP_DATABASE` format: `postgres://user:password@host:port/database`
 
 **Permission issues**: Ensure database user has appropriate SELECT permissions
-
